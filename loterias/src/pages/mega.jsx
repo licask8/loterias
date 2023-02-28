@@ -1,54 +1,55 @@
 import { useEffect, useState } from 'react'
 import MegaLogo from  '../assets/sena.svg'
+import { Dropdown } from '../components/DropdownButton';
 import {api} from '../lib/axios'
 
 
 const results = [
-    "10",
-    "20",
-    "30",
-    "40",
-    "50",
-    "60",
+    "??",
+    "??",
+    "??",
+    "??",
+    "??",
+    "??",
 ]
 
 export function Mega() {
     const [isLoading, setIsLoading] = useState(false);
-    const [dezenas, Setdezenas] = useState([])
-    const [concurso, setConcurso] = useState()
-    const [data, setData] = useState()
+    const [result, setResult] = useState([]);
+    const [dezenas, setDezenas] = useState([])
 
-    async function FechData() {
+
+    async function getData() {
        try {
         setIsLoading(true)
-        const response = await api.get("/mega-sena/latest")
 
-        const results = response.data.dezenas
-        const concurso = response.data.concurso
-        const date = response.data.data
+        const response = await api.get("/mega-sena/latest")
+        const data = response.data
+        const dezenasResult = data.dezenas
+        setResult(data)
+        setDezenas(dezenasResult)
       
-        
-        console.log(results)
-        console.log(concurso)
-        console.log(date)
+
 
        } catch (error) {
         setIsLoading(false)
-        console(error)
+        console.error("ops! ocorreu um erro" + err);
        }
 
     }
 
     useEffect(() => {
-        FechData()
-        console.log("passou aki")
+        getData()
+        
 
-    },[])
+    },[result, dezenas])
 
     return (
         <div className='flex  bg-gray-200 '>
             <aside className='h-screen w-[613px] pl-14 sticky top-0 bg-mega flex flex-col justify-between'>
-                <button onClick={FechData} type='button' className='mt-24 w-52 h-11 bg-white rounded-md font-medium text-sm'>MEGA-SENA</button>
+                {/* <button onClick={getData} type='button' className='mt-24 w-52 h-11 bg-white rounded-md font-medium text-sm'>MEGA-SENA</button> */}
+
+                <Dropdown title="MEGA-SENA" />
 
                 <div className='h-14 flex flex-row gap-5 items-center'>
                     <img src={MegaLogo} alt="logo mega sena" />
@@ -56,8 +57,12 @@ export function Mega() {
                 </div>
 
                 <div className='mb-24'>
-                    <p className='text-white font-medium text-sm'>CONCURSO</p>
-                    <h1 className='font-bold text-xl text-white mt-3'>4531 - 07/04/2020</h1>
+                    <p className='text-white font-medium text-sm'>CONCURSO </p>
+                    {result.length == 0 ? (
+                        <h1 className='font-bold text-xl text-white mt-3'>0000 - 00/00/0000</h1>
+                    ) : (
+                        <h1 className='font-bold text-xl text-white mt-3'>{result.concurso} - {result.data}</h1>
+                    )}
                 </div>
                 
             </aside>
@@ -65,11 +70,20 @@ export function Mega() {
             <div className='w-screen flex flex-col'>
 
                 <div className='m-auto flex flex-row gap-9'>
-                    {results.map((item) => {
+                    {dezenas.length == 0 ? (
+                       results.map((item, i) => {
                         return (
-                            <p key={item} className='bg-white rounded-full px-6 py-6 text-2xl font-bold'>{item}</p>
+                            <p key={`${item}-${i}`} className='bg-white rounded-full px-6 py-6 text-2xl font-bold'>{item}</p>
                         )
-                    })}   
+                       })
+                        ) : (
+                        dezenas.map((item, i) => {
+                            return (
+                                <p key={`${item}-${i}`} className='bg-white rounded-full px-6 py-6 text-2xl font-bold'>{item}</p>
+                            )
+                        })
+                        )}
+                        
                     
                 </div>
 
